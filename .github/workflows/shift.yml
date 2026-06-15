@@ -1,28 +1,27 @@
-name: 数据后移
+name: 数据后移 (08:00)
 
 on:
   schedule:
+    # 北京时间 08:00 (UTC 00:00) 工作日
     - cron: '0 0 * * 1-5'
   workflow_dispatch:
 
-permissions:
-  contents: write
+concurrency:
+  group: shift-data
+  cancel-in-progress: false
 
 jobs:
   shift:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-
-      - name: 安装依赖
-        run: pip install requests
-
-      - name: 数据后移 D21→D20→...→D2
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - name: 数据后移
+        run: python shift_d21_data_cloud.py
         env:
           FEISHU_APP_ID: ${{ secrets.FEISHU_APP_ID }}
           FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
-        run: python3 shift_d21_data_cloud.py
