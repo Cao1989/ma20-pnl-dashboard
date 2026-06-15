@@ -7,16 +7,25 @@ import json
 import sys
 import os
 import time
-from datetime import date
+from datetime import date, datetime, timezone, timedelta
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from feishu_api import base_list_records, base_update_record, base_batch_update, send_feishu_msg
+from feishu_api import (
+    base_list_records, base_update_record,
+    base_batch_update, send_feishu_msg, base_ensure_field,
+)
 
 try:
     import chinese_calendar
     HAS_CC = True
 except ImportError:
     HAS_CC = False
+
+BEIJING_TZ = timezone(timedelta(hours=8))
+
+
+def get_beijing_now():
+    return datetime.now(BEIJING_TZ)
 
 BASE_TOKEN = "JWJ1bTzQ0aBETsseSJqcWn7EnJe"
 TABLE_MA20 = "tblMcst8z8IYH72v"
@@ -47,7 +56,7 @@ SHIFT_MAP = {
 
 
 def is_trading_day():
-    today = date.today()
+    today = get_beijing_now().date()
     if HAS_CC:
         return chinese_calendar.is_workday(today)
     return today.weekday() < 5
@@ -119,6 +128,19 @@ def main():
         updates_count = success
     else:
         updates_count = len(updates)
+
+    # 4.5 清空「更新状态」
+    print("\n[4.5/5] 清空更新状态...")
+    try:
+        base_ensure_field(BASE_TOKEN, TABLE_MA20, "更新状态")
+        clear_recs = [
+            {"record_id": rid, "fields": {"更新状态": None}}
+            for rid in record_id_list
+        ]
+        base_batch_update(BASE_TOKEN, TABLE_MA20, clear_recs)
+        print(f"  ✓ 已清空 {len(clear_recs)} 条记录的更新状态")
+    except Exception as e:
+        print(f"  ✗ 清空更新状态失败: {e}")
 
     # 5. 清零底层表「盈亏_日」
     print("\n[5/5] 清零底层表「盈亏_日」...")
