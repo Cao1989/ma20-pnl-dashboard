@@ -1,28 +1,27 @@
-name: 回撤提醒
+name: 回撤提醒 (22:30)
 
 on:
   schedule:
+    # 北京时间 22:30 (UTC 14:30) 工作日
     - cron: '30 14 * * 1-5'
   workflow_dispatch:
 
-permissions:
-  contents: write
+concurrency:
+  group: check-drop
+  cancel-in-progress: false
 
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-
-      - name: 安装依赖
-        run: pip install requests
-
-      - name: 检查回撤≥10%并发送飞书提醒
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - name: 回撤检查
+        run: python check_nav_drop_alert_cloud.py
         env:
           FEISHU_APP_ID: ${{ secrets.FEISHU_APP_ID }}
           FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
-        run: python3 check_nav_drop_alert_cloud.py
