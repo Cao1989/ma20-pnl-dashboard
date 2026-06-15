@@ -3,13 +3,13 @@
   "fund_snapshots": {
     "recvmjBoDx9bVY": {
       "name": "沪电股份",
-      "total_pnl": -140.0,
+      "total_pnl": 716.0,
       "pos_amount": 12660,
       "position": "高增长"
     },
     "rec27rswlS6cu2": {
       "name": "标普500南方",
-      "total_pnl": 6060.2,
+      "total_pnl": 8069.8,
       "pos_amount": 52155.4,
       "position": "佩奇"
     },
@@ -21,8 +21,8 @@
     },
     "recvkfAYoFaZqc": {
       "name": "易方达全球",
-      "total_pnl": 17150.07083,
-      "pos_amount": 24999.551544,
+      "total_pnl": 7302.085912,
+      "pos_amount": 10323.79876,
       "position": "佩奇"
     },
     "rec27rswlS68Dc": {
@@ -33,13 +33,13 @@
     },
     "recvkfzbMF312O": {
       "name": "华夏纳指100",
-      "total_pnl": 1360.0,
+      "total_pnl": 3580.0,
       "pos_amount": 51020,
       "position": "乔治"
     },
     "recvlrsEmpXeAR": {
       "name": "易方达纳指LOF",
-      "total_pnl": -1366.4,
+      "total_pnl": 1159.0,
       "pos_amount": 56852,
       "position": "乔治"
     },
@@ -51,19 +51,19 @@
     },
     "recvm29neggnDq": {
       "name": "长江电力",
-      "total_pnl": 1067.4,
-      "pos_amount": 49836.6,
+      "total_pnl": -258.0,
+      "pos_amount": 82968,
       "position": "媳妇"
     },
     "recvm29UCTquwv": {
       "name": "招商银行",
-      "total_pnl": 1079.0,
+      "total_pnl": 572.0,
       "pos_amount": 50063,
       "position": "媳妇"
     },
     "recvltfpDciz4K": {
       "name": "香港证券",
-      "total_pnl": -5740.0,
+      "total_pnl": 1260.0,
       "pos_amount": 254940,
       "position": "压舱石"
     },
@@ -93,25 +93,25 @@
     },
     "recvkTFnGzLBd2": {
       "name": "通信ETF",
-      "total_pnl": 21384.0,
+      "total_pnl": 29889.0,
       "pos_amount": 106920,
       "position": "战略仓"
     },
     "recvlfkmSNHek4": {
       "name": "科创芯片",
-      "total_pnl": 1553.2,
+      "total_pnl": 8719.1,
       "pos_amount": 119066.9,
       "position": "战略仓"
     },
     "recvllZenUxBzt": {
       "name": "黄金ETF",
-      "total_pnl": -1916.2,
+      "total_pnl": -113.9,
       "pos_amount": 60487.6,
       "position": "战略仓"
     },
     "recvkI8SYLVsdq": {
       "name": "电力ETF",
-      "total_pnl": -3477.6,
+      "total_pnl": -2511.6,
       "pos_amount": 113601.6,
       "position": "战术"
     }
