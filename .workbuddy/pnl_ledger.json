@@ -1,17 +1,11 @@
 {
   "realized_pnl": 62393.68,
   "fund_snapshots": {
-    "rec27rswlS653Y": {
-      "name": "沪深300",
-      "total_pnl": 2286.047673,
-      "pos_amount": 298743.7245,
-      "position": "战略仓"
-    },
-    "rec27rswlS68Dc": {
-      "name": "宝盈纳指100",
-      "total_pnl": 9881.115524,
-      "pos_amount": 51501.82093,
-      "position": "乔治"
+    "recvmjBoDx9bVY": {
+      "name": "沪电股份",
+      "total_pnl": -140.0,
+      "pos_amount": 12660,
+      "position": "高增长"
     },
     "rec27rswlS6cu2": {
       "name": "标普500南方",
@@ -19,58 +13,88 @@
       "pos_amount": 52155.4,
       "position": "佩奇"
     },
-    "rec27rswlS6ge5": {
-      "name": "中证红利低波",
-      "total_pnl": -1860.909791,
-      "pos_amount": 239998.7517,
-      "position": "媳妇"
-    },
-    "recvkfmpempQUE": {
-      "name": "东方人工智能",
-      "total_pnl": 40724.41411,
-      "pos_amount": 86274.66907,
-      "position": "战略仓"
-    },
-    "recvkfp1uHa5TP": {
-      "name": "广发全球精选",
-      "total_pnl": 28724.11417,
-      "pos_amount": 96200.00419,
-      "position": "战略仓"
-    },
-    "recvkfyuBndx38": {
-      "name": "景颐丰利",
-      "total_pnl": 5974.606544,
-      "pos_amount": 363536.9736,
-      "position": "战略仓"
-    },
-    "recvkfzbMF312O": {
-      "name": "华夏纳指100",
-      "total_pnl": 1360,
-      "pos_amount": 51020.0,
-      "position": "乔治"
-    },
     "recvkfAQ6oqmiU": {
       "name": "中证A500",
       "total_pnl": 1975.80696,
-      "pos_amount": 104997.6749,
+      "pos_amount": 104997.674866,
       "position": "佩奇"
     },
     "recvkfAYoFaZqc": {
       "name": "易方达全球",
       "total_pnl": 17150.07083,
-      "pos_amount": 24999.55154,
+      "pos_amount": 24999.551544,
       "position": "佩奇"
     },
-    "recvkI8SYLVsdq": {
-      "name": "电力ETF",
-      "total_pnl": -3477.6,
-      "pos_amount": 113601.6,
-      "position": "战术"
+    "rec27rswlS68Dc": {
+      "name": "宝盈纳指100",
+      "total_pnl": 9881.115524,
+      "pos_amount": 51501.82093,
+      "position": "乔治"
+    },
+    "recvkfzbMF312O": {
+      "name": "华夏纳指100",
+      "total_pnl": 1360.0,
+      "pos_amount": 51020,
+      "position": "乔治"
+    },
+    "recvlrsEmpXeAR": {
+      "name": "易方达纳指LOF",
+      "total_pnl": -1366.4,
+      "pos_amount": 56852,
+      "position": "乔治"
+    },
+    "rec27rswlS6ge5": {
+      "name": "中证红利低波",
+      "total_pnl": -1860.909791,
+      "pos_amount": 239998.751707,
+      "position": "媳妇"
+    },
+    "recvm29neggnDq": {
+      "name": "长江电力",
+      "total_pnl": 1067.4,
+      "pos_amount": 49836.6,
+      "position": "媳妇"
+    },
+    "recvm29UCTquwv": {
+      "name": "招商银行",
+      "total_pnl": 1079.0,
+      "pos_amount": 50063,
+      "position": "媳妇"
+    },
+    "recvltfpDciz4K": {
+      "name": "香港证券",
+      "total_pnl": -5740.0,
+      "pos_amount": 254940,
+      "position": "压舱石"
+    },
+    "rec27rswlS653Y": {
+      "name": "沪深300",
+      "total_pnl": 2286.047673,
+      "pos_amount": 298743.724476,
+      "position": "战略仓"
+    },
+    "recvkfp1uHa5TP": {
+      "name": "广发全球精选",
+      "total_pnl": 28724.11417,
+      "pos_amount": 96200.004186,
+      "position": "战略仓"
+    },
+    "recvkfmpempQUE": {
+      "name": "东方人工智能",
+      "total_pnl": 40724.41411,
+      "pos_amount": 86274.669068,
+      "position": "战略仓"
+    },
+    "recvkfyuBndx38": {
+      "name": "景颐丰利",
+      "total_pnl": 5974.606544,
+      "pos_amount": 363536.973556,
+      "position": "战略仓"
     },
     "recvkTFnGzLBd2": {
       "name": "通信ETF",
-      "total_pnl": 21384,
-      "pos_amount": 106920.0,
+      "total_pnl": 21384.0,
+      "pos_amount": 106920,
       "position": "战略仓"
     },
     "recvlfkmSNHek4": {
@@ -85,35 +109,11 @@
       "pos_amount": 60487.6,
       "position": "战略仓"
     },
-    "recvlrsEmpXeAR": {
-      "name": "易方达纳指LOF",
-      "total_pnl": -1366.4,
-      "pos_amount": 56852.0,
-      "position": "乔治"
-    },
-    "recvltfpDciz4K": {
-      "name": "香港证券",
-      "total_pnl": -5740,
-      "pos_amount": 254940.0,
-      "position": "压舱石"
-    },
-    "recvm29neggnDq": {
-      "name": "长江电力",
-      "total_pnl": 1067.4,
-      "pos_amount": 49836.6,
-      "position": "媳妇"
-    },
-    "recvm29UCTquwv": {
-      "name": "招商银行",
-      "total_pnl": 1079,
-      "pos_amount": 50063.0,
-      "position": "媳妇"
-    },
-    "recvmjBoDx9bVY": {
-      "name": "沪电股份",
-      "total_pnl": -140,
-      "pos_amount": 12660.0,
-      "position": "高增长"
+    "recvkI8SYLVsdq": {
+      "name": "电力ETF",
+      "total_pnl": -3477.6,
+      "pos_amount": 113601.6,
+      "position": "战术"
     }
   },
   "last_updated": "2026-06-15"
