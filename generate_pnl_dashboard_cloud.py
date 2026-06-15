@@ -70,18 +70,23 @@ print(f"  💰 总盈亏: 飞书浮盈 {total_all_pnl_raw:+,.2f} + 已实现 {le
 # ─── 4. 增量更新历史：仅覆盖最新交易日 ──────────────────
 total_day_rate = round((data["total_day_pnl"] / total_cost * 100) if total_cost else 0, 2)
 today_feishu_rate = total_day_rate
+today_str = time.strftime("%Y-%m-%d")
 
 if history_data:
     latest_date = max(history_data.keys())
-    history_data[latest_date] = {
-        "amount": round(data["total_day_pnl"], 2),
-        "rate": today_feishu_rate,
-    }
-    print(f"增量同步: 最后交易日 {latest_date} 已用飞书数据覆盖")
+    if latest_date == today_str:
+        # 今天刚刷新数据，覆盖最新值
+        history_data[latest_date] = {
+            "amount": round(data["total_day_pnl"], 2),
+            "rate": today_feishu_rate,
+        }
+        print(f"增量同步: 最后交易日 {latest_date} 已用飞书数据覆盖")
+    else:
+        # 最新历史日期与今天不同（跨天），不覆盖
+        print(f"保留历史数据: 最后交易日 {latest_date} (今天 {today_str})")
 
 # 追加新交易日
 from datetime import datetime, timedelta
-today_str = time.strftime("%Y-%m-%d")
 if today_str not in history_data:
     wd = datetime.strptime(today_str, "%Y-%m-%d").weekday()
     if wd < 5:
