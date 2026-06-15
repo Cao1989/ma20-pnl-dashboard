@@ -188,6 +188,39 @@ def base_batch_update(base_token, table_id, records):
         _api("POST", path, {"records": batch})
 
 
+def base_create_field(base_token, table_id, field_name, field_type=1):
+    """
+    创建字段。
+    field_type: 1=文本, 2=数字, 3=单选, 4=多选,  ...
+    返回: field_id
+    """
+    path = f"/bitable/v1/apps/{base_token}/tables/{table_id}/fields"
+    body = {
+        "field_name": field_name,
+        "type": field_type,
+    }
+    result = _api("POST", path, body)
+    return result.get("data", {}).get("field", {}).get("field_id", "")
+
+
+def base_ensure_field(base_token, table_id, field_name, field_type=1):
+    """
+    确保字段存在，不存在则创建。
+    返回: (field_id, 是否已存在)
+    """
+    # 先列出现有字段
+    try:
+        meta_result = _api("GET", f"/bitable/v1/apps/{base_token}/tables/{table_id}/fields")
+        for f in meta_result.get("data", {}).get("items", []):
+            if f.get("field_name") == field_name:
+                return f.get("field_id", ""), True
+    except Exception:
+        pass
+    # 不存在，创建
+    field_id = base_create_field(base_token, table_id, field_name, field_type)
+    return field_id, False
+
+
 # ─── 消息 ───────────────────────────────────────────────
 
 def send_feishu_msg(markdown_text):
