@@ -8,7 +8,11 @@ MA20净值表 - 历史数据回填（云端版）
 - 场内ETF/LOF/个股：新浪K线 API
 
 D字段与交易日映射（按北京时间）：
-  D2 = 上一个交易日，D3 = 上上个，...，D20 = 20天前的交易日
+  D21 = 最近一个交易日（最新），D20 = 倒数第二个，...，D2 = 20天前的交易日
+  
+  与 shift_d21_data.py 同步：每天 08:00 数据后移 D21→D20→...→D2，fetch 填入 D21。
+  
+  OTC 基金（非 KLINE_CODES）：当日净值未发布时回退到 T-1 净值。
 """
 import json
 import os
@@ -233,17 +237,18 @@ def read_ma20_table():
 def main():
     print("=== MA20净值表 历史数据回填 ===\n")
 
-    # 1. 获取最近20个交易日
+    # 1. 获取最近20个交易日（从近到远排序）
     trading_days = get_last_n_trading_days(20)
-    print(f"[1] 最近20个交易日:")
+    # trading_days[0]=最近交易日 → D21, trading_days[19]=最远 → D2
+    print(f"[1] 最近20个交易日 (D21=最新, D2=最旧):")
     for i, d in enumerate(trading_days):
-        label = f"D{i+2}"
+        label = f"D{21-i}"  # i=0→D21, i=19→D2
         print(f"    {label} = {d.strftime('%Y-%m-%d')} ({d.strftime('%A')})")
 
-    # 建立日期 → D字段映射
+    # 建立日期 → D字段映射（D21=最近, D2=最远）
     date_to_field = {}
     for i, d in enumerate(trading_days):
-        field_name = f"D{i+2}"
+        field_name = f"D{21-i}"  # i=0→D21(最近), i=19→D2(最远)
         date_to_field[d.strftime("%Y-%m-%d")] = field_name
 
     # 2. 读取底层表
@@ -278,14 +283,28 @@ def main():
             print("无历史数据")
             continue
 
-        # 匹配交易日
+        # 匹配交易日 — OTC 基金支持 T-1 回退
         updates = {}
         matched = 0
+        is_otc = code not in KLINE_CODES  # OTC 场外基金
+        
         for date_str, field_name in date_to_field.items():
             nav = nav_history.get(date_str)
             if nav is not None and nav > 0:
                 updates[field_name] = round(nav, 4)
                 matched += 1
+            elif is_otc:
+                # OTC 基金：当日净值未发布，回退到前一交易日净值
+                target_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+                fallback_date = target_date
+                for _ in range(5):  # 最多回退5天
+                    fallback_date -= timedelta(days=1)
+                    fb_str = fallback_date.strftime("%Y-%m-%d")
+                    fb_nav = nav_history.get(fb_str)
+                    if fb_nav is not None and fb_nav > 0:
+                        updates[field_name] = round(fb_nav, 4)
+                        matched += 1
+                        break
 
         print(f"匹配 {matched}/{len(trading_days)} 天")
 
