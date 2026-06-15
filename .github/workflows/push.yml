@@ -1,28 +1,27 @@
-name: 飞书推送每日简报
+name: 每日盈亏推送 (23:00)
 
 on:
   schedule:
+    # 北京时间 23:00 (UTC 15:00) 工作日
     - cron: '0 15 * * 1-5'
   workflow_dispatch:
 
-permissions:
-  contents: write
+concurrency:
+  group: push-pnl
+  cancel-in-progress: false
 
 jobs:
   push:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-
-      - name: 安装依赖
-        run: pip install requests
-
-      - name: 发送每日盈亏简报到飞书
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - name: 每日盈亏简报
+        run: python send_daily_pnl_push_cloud.py
         env:
           FEISHU_APP_ID: ${{ secrets.FEISHU_APP_ID }}
           FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
-        run: python3 send_daily_pnl_push_cloud.py
