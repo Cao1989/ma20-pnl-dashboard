@@ -1,0 +1,24 @@
+name: MA20历史数据回填
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: backfill-ma20
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: 回填MA20历史净值
+        run: python backfill_ma20_data_cloud.py
+        env:
+          FEISHU_APP_ID: ${{ secrets.FEISHU_APP_ID }}
+          FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}

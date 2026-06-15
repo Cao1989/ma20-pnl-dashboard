@@ -46,19 +46,14 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .workbuddy/history_pnl.json .workbuddy/pnl_ledger.json .workbuddy/pnl_data.json
+          git add .workbuddy/history_pnl.json .workbuddy/pnl_ledger.json .workbuddy/pnl_data.json _site/
           if git diff --cached --quiet; then
             echo "No data changes to commit"
           else
-            git commit -m "chore: 更新历史盈亏和账本数据 [skip ci]"
+            git commit -m "chore: 更新看板数据和历史盈亏 [skip ci]"
             git push origin main
             echo "Data files committed and pushed"
           fi
-
-      - name: 准备部署文件
-        run: |
-          mkdir -p _site
-          cp pnl_dashboard.html _site/index.html
 
       - name: 上传 Pages 构件
         uses: actions/upload-pages-artifact@v3

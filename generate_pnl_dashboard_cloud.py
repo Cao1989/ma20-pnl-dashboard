@@ -269,27 +269,27 @@ hero_card = f"""
 <div class="hero-card">
   <div class="hero-top">
     <div class="hero-label">持仓总市值 <span class="eye-toggle" id="eyeToggle" onclick="toggleEye()" title="点击隐藏金额">__EYE_OPEN__</span></div>
-    <div class="hero-value">¥{total_market_value:,.0f}</div>
+    <div class="hero-value" id="heroMarketValue">¥{total_market_value:,.0f}</div>
   </div>
   <div class="hero-mid">
     <div class="goal-header">
       <span class="goal-label">收益目标</span>
-      <span class="goal-pct" style="color:var(--tab-yellow)">{all_sign}{display_total_all_rate:.2f}%</span>
+      <span class="goal-pct" id="heroGoalPct" style="color:var(--tab-yellow)">{all_sign}{display_total_all_rate:.2f}%</span>
     </div>
     <div class="goal-bar-wrap">
-      <div class="goal-bar {progress_cls}" style="width:{progress_pct}%"></div>
+      <div class="goal-bar {progress_cls}" id="heroGoalBar" style="width:{progress_pct}%"></div>
     </div>
-    <div class="goal-footer">{goal_label}</div>
+    <div class="goal-footer" id="heroGoalFooter">{goal_label}</div>
   </div>
   <div class="hero-bot">
     <div class="hero-sub">
       <div class="hero-sub-label">当日盈亏</div>
-      <div class="hero-sub-val {'up' if data['total_day_pnl'] >= 0 else 'down'}">{day_sign}¥{data['total_day_pnl']:,.0f}<span class="hero-sub-rate"> ({'+' if total_day_rate >= 0 else ''}{total_day_rate:.2f}%)</span></div>
+      <div class="hero-sub-val {'up' if data['total_day_pnl'] >= 0 else 'down'}" id="heroDayPnl">{day_sign}¥{data['total_day_pnl']:,.0f}<span class="hero-sub-rate"> ({'+' if total_day_rate >= 0 else ''}{total_day_rate:.2f}%)</span></div>
     </div>
     <div class="hero-divider"></div>
     <div class="hero-sub">
       <div class="hero-sub-label">总盈亏</div>
-      <div class="hero-sub-val {'up' if display_total_all_pnl >= 0 else 'down'}">{all_sign}¥{display_total_all_pnl:,.0f}<span class="hero-sub-rate"> ({'+' if display_total_all_rate >= 0 else ''}{display_total_all_rate:.2f}%)</span></div>
+      <div class="hero-sub-val {'up' if display_total_all_pnl >= 0 else 'down'}" id="heroTotalPnl">{all_sign}¥{display_total_all_pnl:,.0f}<span class="hero-sub-rate"> ({'+' if display_total_all_rate >= 0 else ''}{display_total_all_rate:.2f}%)</span></div>
     </div>
   </div>
 </div>"""
@@ -909,10 +909,56 @@ __HERO_CARD__
   </div>
 </div>
 
-<div class="bottom-info">Auto-refresh daily · 数据来自飞书多维表格</div>
+<div class="bottom-info" id="bottomInfo">动态加载中... · 数据来自飞书多维表格</div>
 
 <script>
-var D = __DATA__;
+// 静态嵌入数据作为初始回退
+var _STATIC = __DATA__;
+var D = _STATIC;
+var LOADED = false;
+
+// ==================== 动态数据加载 ====================
+(function loadDynamicData() {
+  var ts = Date.now();
+  Promise.all([
+    fetch('pnl_data.json?t=' + ts).then(function(r){ return r.ok ? r.json() : Promise.reject('pnl_data fetch failed'); }),
+    fetch('history_pnl.json?t=' + ts).then(function(r){ return r.ok ? r.json() : Promise.reject('history fetch failed'); })
+  ]).then(function(results){
+    var freshData = results[0];
+    var freshHistory = results[1];
+    // 合并历史数据
+    freshData.history = freshHistory;
+    D = freshData;
+    LOADED = true;
+    document.getElementById('bottomInfo').textContent = '动态刷新 ' + new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'}) + ' · 数据来自飞书多维表格';
+    // 重新渲染
+    renderAll();
+  }).catch(function(e){
+    console.log('动态加载失败，使用静态数据: ' + e);
+    document.getElementById('bottomInfo').textContent = '静态快照 · 数据来自飞书多维表格';
+    LOADED = true;
+    renderAll();
+  });
+})();
+
+// 每5分钟自动刷新
+setInterval(function(){
+  if (!LOADED) return;
+  var ts = Date.now();
+  Promise.all([
+    fetch('pnl_data.json?t=' + ts).then(function(r){ return r.ok ? r.json() : Promise.reject(); }),
+    fetch('history_pnl.json?t=' + ts).then(function(r){ return r.ok ? r.json() : Promise.reject(); })
+  ]).then(function(results){
+    var changed = JSON.stringify(results[0].total_all_pnl) !== JSON.stringify(D.total_all_pnl)
+               || JSON.stringify(results[0].total_day_pnl) !== JSON.stringify(D.total_day_pnl);
+    if (changed) {
+      results[0].history = results[1];
+      D = results[0];
+      document.getElementById('bottomInfo').textContent = '动态刷新 ' + new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'}) + ' · 数据已更新';
+      renderAll();
+    }
+  }).catch(function(){});
+}, 300000);  // 5分钟
 
 // ==================== 密码验证 ====================
 (function(){
@@ -1072,21 +1118,69 @@ function setChartMetric(metric) {
   applyPrivacyMask();
 }
 
-// 初始化：默认当日盈亏
-setChartMetric('day');
-
 // ==================== 收益日历（真实历史数据） ====================
 var calYear = 2026, calMonth = 5;      // 0-indexed (5=June)
 var calPeriod = 'day';
 var calUnit = 'amount';
 var calToday = new Date();
 var calTodayY = calToday.getFullYear(), calTodayM = calToday.getMonth(), calTodayD = calToday.getDate();
-var historyData = D.history || {};
+var historyData = {};
 
 function isToday(y,m,d) { return y===calTodayY && m===calTodayM && d===calTodayD; }
 
 function getDayData(dateStr) {
-  return historyData[dateStr] || null;
+  return D.history ? (D.history[dateStr] || null) : null;
+}
+
+// ==================== 全量渲染 ====================
+function renderAll() {
+  historyData = D.history || {};
+
+  // 更新 Hero Card 数字
+  var tdp = D.total_day_pnl || 0;
+  var tap = D.total_all_pnl || 0;
+  var tdr = D.total_day_rate || 0;
+  var tar = D.total_all_rate || 0;
+  var tmv = (D.total_cost || 0) + tap;
+  var daySign = tdp >= 0 ? '' : '-';
+  var allSign = tap >= 0 ? '' : '-';
+
+  var elMV = document.getElementById('heroMarketValue');
+  if (elMV) elMV.textContent = '¥' + Math.abs(tmv).toLocaleString('zh-CN', {maximumFractionDigits:0});
+
+  var elGP = document.getElementById('heroGoalPct');
+  if (elGP) elGP.textContent = (tap >= 0 ? '' : '-') + Math.abs(tar).toFixed(2) + '%';
+
+  var elGB = document.getElementById('heroGoalBar');
+  var progressPct = Math.min(Math.abs(tar), 100);
+  if (elGB) { elGB.style.width = progressPct + '%'; elGB.className = 'goal-bar ' + (tap >= 0 ? 'bar-up' : 'bar-down'); }
+
+  var elGF = document.getElementById('heroGoalFooter');
+  if (elGF) elGF.textContent = tar >= 100 ? '达成目标' : '距目标还差 ¥' + Math.abs(D.total_cost - tap).toLocaleString('zh-CN', {maximumFractionDigits:0});
+
+  var elDP = document.getElementById('heroDayPnl');
+  if (elDP) {
+    elDP.className = 'hero-sub-val ' + (tdp >= 0 ? 'up' : 'down');
+    elDP.innerHTML = daySign + '¥' + Math.abs(tdp).toLocaleString('zh-CN', {maximumFractionDigits:0}) + '<span class="hero-sub-rate"> (' + (tdr >= 0 ? '+' : '') + tdr.toFixed(2) + '%)</span>';
+  }
+
+  var elTP = document.getElementById('heroTotalPnl');
+  if (elTP) {
+    elTP.className = 'hero-sub-val ' + (tap >= 0 ? 'up' : 'down');
+    elTP.innerHTML = allSign + '¥' + Math.abs(tap).toLocaleString('zh-CN', {maximumFractionDigits:0}) + '<span class="hero-sub-rate"> (' + (tar >= 0 ? '+' : '') + tar.toFixed(2) + '%)</span>';
+  }
+
+  // 更新图表
+  var items = getChartData(currentMetric);
+  var valueField = getValueField(currentMetric);
+  if (mainChart) mainChart.destroy();
+  mainChart = makeChart(items, valueField);
+  var el = document.querySelector('.chart-wrap');
+  el.style.height = Math.max(280, items.length * 24) + 'px';
+
+  // 更新收益日历
+  renderCalendar();
+  applyPrivacyMask();
 }
 
 function renderCalendar() {
@@ -1598,7 +1692,36 @@ output_path = os.path.join(CWD, "pnl_dashboard.html")
 with open(output_path, "w") as f:
     f.write(html)
 
-print(f"\n✅ 看板 v12 已生成: {output_path}")
+# ─── 14. 保存动态数据文件 ─────────────────────────────────
+os.makedirs(os.path.join(CWD, "_site"), exist_ok=True)
+
+# pnl_data.json (不含history，history单独文件)
+pnl_data_for_web = {
+    "day_sorted": day_items,
+    "total_sorted": total_items,
+    "amount_sorted": amount_items,
+    "total_day_pnl": round(data["total_day_pnl"], 2),
+    "total_all_pnl": round(display_total_all_pnl, 2),
+    "total_day_rate": total_day_rate,
+    "total_all_rate": display_total_all_rate,
+    "total_cost": round(total_cost, 2),
+    "realized_pnl": round(ledger.get("realized_pnl", 0), 2),
+}
+pnl_json_path = os.path.join(CWD, "_site", "pnl_data.json")
+with open(pnl_json_path, "w") as f:
+    json.dump(pnl_data_for_web, f, ensure_ascii=False, indent=2)
+
+# history_pnl.json
+history_json_path = os.path.join(CWD, "_site", "history_pnl.json")
+with open(history_json_path, "w") as f:
+    json.dump(history_data, f, ensure_ascii=False, indent=2)
+
+# 复制 HTML 到 _site
+import shutil
+shutil.copy(output_path, os.path.join(CWD, "_site", "index.html"))
+
+print(f"\n✅ 看板 v13 已生成: {output_path}")
+print(f"   动态数据: _site/pnl_data.json + _site/history_pnl.json")
 print(f"   市值: ¥{total_cost + display_total_all_pnl:,.0f} | 总盈亏: {display_total_all_rate:+.2f}% | 今日: {total_day_rate:+.2f}%")
 if ledger.get("realized_pnl"):
     print(f"   已实现盈亏: {ledger['realized_pnl']:+,.2f} (已锁定)")
