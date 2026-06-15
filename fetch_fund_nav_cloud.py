@@ -11,11 +11,20 @@ import os
 import re
 import time
 import urllib.request
-from datetime import date
+from datetime import date, datetime, timezone, timedelta
 
 # 添加项目根目录到 path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from feishu_api import base_list_records, base_update_record, send_feishu_msg
+from feishu_api import (
+    base_list_records, base_update_record,
+    send_feishu_msg, base_ensure_field, base_batch_update,
+)
+
+BEIJING_TZ = timezone(timedelta(hours=8))
+
+
+def get_beijing_now():
+    return datetime.now(BEIJING_TZ)
 
 # 日期判断：用 chinese_calendar；若未安装则降级为周一到周五
 try:
@@ -33,6 +42,8 @@ FIELD_FUND_NAME_MA20 = "fldS6Vtx56"
 FIELD_D21 = "fldWFYu1sW"
 FIELD_CODE = "fldfLmbLHe"
 
+FIELD_UPDATE_STATUS = "更新状态"  # 字段名称，base_ensure_field 会自动创建
+
 KLINE_CODES = {
     "600900", "600036", "002463",
     "588290", "515880", "159326", "513300",
@@ -44,7 +55,7 @@ KLINE_CODES = {
 # ─── 工具函数 ─────────────────────────────────────────────
 
 def is_trading_day():
-    today = date.today()
+    today = get_beijing_now().date()
     if HAS_CHINESE_CALENDAR:
         return chinese_calendar.is_workday(today)
     return today.weekday() < 5  # Mon-Fri
@@ -196,6 +207,11 @@ def main():
 
     if not empty_d21:
         print("\n✅ D21 已全部填满，无需操作。")
+        # 即使无需操作，也确保更新状态字段存在（不写状态，避免重复通知）
+        try:
+            base_ensure_field(BASE_TOKEN, TABLE_MA20, FIELD_UPDATE_STATUS)
+        except Exception:
+            pass
         return
 
     # 2. 读取底层数据表
@@ -241,6 +257,21 @@ def main():
 
     if newly_filled == 0 and missing > 0:
         return
+
+    # 4.5 写入「今日已更新」状态
+    print("\n[4.5] 写入更新状态...")
+    try:
+        status_field_id, existed = base_ensure_field(
+            BASE_TOKEN, TABLE_MA20, FIELD_UPDATE_STATUS)
+        # 批量更新所有记录
+        batch_records = [
+            {"record_id": r["rid"], "fields": {FIELD_UPDATE_STATUS: "今日已更新"}}
+            for r in ma20_records
+        ]
+        base_batch_update(BASE_TOKEN, TABLE_MA20, batch_records)
+        print(f"  ✓ 已更新 {len(batch_records)} 条记录的更新状态")
+    except Exception as e:
+        print(f"  ✗ 更新状态写入失败: {e}")
 
     # 5. 发送飞书消息
     time_str = time.strftime("%H:%M", time.localtime())
