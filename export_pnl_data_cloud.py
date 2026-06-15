@@ -27,7 +27,11 @@ def main():
     records = resp["data"]
     ids = resp["record_id_list"]
 
-    name2idx = {n: i for i, n in enumerate(field_names)}
+    # 使用第一个出现的字段名（飞书API可能返回重复字段名，后出现的为null）
+    name2idx = {}
+    for i, n in enumerate(field_names):
+        if n not in name2idx:
+            name2idx[n] = i
 
     # ── 2. 获取 MA20 净值表 D21 ──
     nav_map = {}
