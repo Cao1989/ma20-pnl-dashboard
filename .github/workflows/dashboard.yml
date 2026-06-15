@@ -11,40 +11,47 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  dashboard:
+  build-deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
-      contents: write
+      contents: read
       pages: write
       id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      - run: pip install -r requirements.txt
+          python-version: '3.12'
 
-      - name: 导出盈亏数据
+      - name: 安装依赖
+        run: pip install -r requirements.txt
+
+      - name: 同步盈亏字段
         run: python sync_pnl_fields_cloud.py
         env:
           FEISHU_APP_ID: ${{ secrets.FEISHU_APP_ID }}
           FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
 
-      - name: 生成盈亏看板
+      - name: 构建看板HTML
         run: python generate_pnl_dashboard_cloud.py
         env:
           FEISHU_APP_ID: ${{ secrets.FEISHU_APP_ID }}
           FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
 
-      - name: 准备部署目录
+      - name: 准备部署文件
         run: |
-          mkdir -p public
-          cp pnl_dashboard.html public/index.html
+          mkdir -p _site
+          cp pnl_dashboard.html _site/index.html
+
+      - name: 上传 Pages 构件
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site/
 
       - name: 部署到 GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
-          force_orphan: true
+        id: deployment
+        uses: actions/deploy-pages@v4
