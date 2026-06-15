@@ -233,7 +233,7 @@ def send_feishu_msg(markdown_text):
     content = json.dumps({"text": markdown_text}, ensure_ascii=False)
 
     body = {
-        "receive_id": BOT_OPEN_ID or "ou_1d2af5f7db994ab6e0151176109f5057",
+        "receive_id": BOT_OPEN_ID or "ou_c864f9db22e3208dd09b3655107d0731",
         "msg_type": "text",
         "content": content,
     }
