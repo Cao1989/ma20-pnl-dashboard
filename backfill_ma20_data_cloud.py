@@ -283,28 +283,35 @@ def main():
             print("无历史数据")
             continue
 
-        # 匹配交易日 — OTC 基金支持 T-1 回退
+        # 匹配交易日
         updates = {}
         matched = 0
         is_otc = code not in KLINE_CODES  # OTC 场外基金
         
-        for date_str, field_name in date_to_field.items():
-            nav = nav_history.get(date_str)
-            if nav is not None and nav > 0:
-                updates[field_name] = round(nav, 4)
-                matched += 1
-            elif is_otc:
-                # OTC 基金：当日净值未发布，回退到前一交易日净值
-                target_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-                fallback_date = target_date
-                for _ in range(5):  # 最多回退5天
-                    fallback_date -= timedelta(days=1)
-                    fb_str = fallback_date.strftime("%Y-%m-%d")
-                    fb_nav = nav_history.get(fb_str)
-                    if fb_nav is not None and fb_nav > 0:
-                        updates[field_name] = round(fb_nav, 4)
+        if is_otc:
+            # OTC 基金：整体序列平移1天
+            # D21←T-1(最新交易日-1), D20←T-2, D19←T-3, ..., D2←T-21
+            for i, d in enumerate(trading_days):
+                field_name = f"D{21-i}"  # i=0→D21, i=19→D2
+                # 从 T-1 开始查找（因为当日净值T+1才发布）
+                lookback = d - timedelta(days=1)
+                found = False
+                for _ in range(5):  # 处理周末/节假日
+                    lb_str = lookback.strftime("%Y-%m-%d")
+                    nav = nav_history.get(lb_str)
+                    if nav is not None and nav > 0:
+                        updates[field_name] = round(nav, 4)
                         matched += 1
+                        found = True
                         break
+                    lookback -= timedelta(days=1)
+        else:
+            # 场内品种：直接用交易日当天收盘价
+            for date_str, field_name in date_to_field.items():
+                nav = nav_history.get(date_str)
+                if nav is not None and nav > 0:
+                    updates[field_name] = round(nav, 4)
+                    matched += 1
 
         print(f"匹配 {matched}/{len(trading_days)} 天")
 
