@@ -1,0 +1,27 @@
+name: 实时行情刷新 (09:30~15:00 每5分钟)
+
+on:
+  schedule:
+    # 北京时间 09:30-15:00 (UTC 01:30-07:00) 每5分钟, 工作日
+    - cron: '*/5 1-7 * * 1-5'
+  workflow_dispatch:
+
+concurrency:
+  group: realtime-prices
+  cancel-in-progress: false
+
+jobs:
+  fetch-realtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - name: 获取实时行情
+        run: python fetch_realtime_prices_cloud.py
+        env:
+          FEISHU_APP_ID: ${{ secrets.FEISHU_APP_ID }}
+          FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
