@@ -25,5 +25,4 @@ jobs:
         env:
           FEISHU_APP_ID: ${{ secrets.FEISHU_APP_ID }}
           FEISHU_APP_SECRET: ${{ secrets.FEISHU_APP_SECRET }}
-          FEISHU_BOT_OPEN_ID: ${{ secrets.FEISHU_BOT_OPEN_ID }}
         run: python3 send_daily_pnl_push_cloud.py
