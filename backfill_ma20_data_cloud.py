@@ -170,17 +170,29 @@ def read_bottom_table():
     """读取底层数据表 → {基金名称: 代码}"""
     resp = base_list_records(BASE_TOKEN, TABLE_BOTTOM)
     field_ids = resp["field_id_list"]
+    field_names = resp["fields"]
     records = resp["data"]
 
+    # 调试：打印所有字段
+    print(f"    [DEBUG] 底层表字段: {list(zip(field_ids, field_names))[:10]}")
+    print(f"    [DEBUG] 底层表记录数: {len(records)}")
+    if records:
+        print(f"    [DEBUG] 第一条记录: {records[0][:5]}")
+
+    # 同时用 field_id 和 field_name 查找
     name_pos = code_pos = None
-    for i, fid in enumerate(field_ids):
-        if fid == FIELD_FUND_NAME_BOTTOM:
+    for i, (fid, fname) in enumerate(zip(field_ids, field_names)):
+        if fid == FIELD_FUND_NAME_BOTTOM or fname in ("基金名称", "名称"):
             name_pos = i
-        if fid == FIELD_CODE:
+            print(f"    [DEBUG] 基金名称字段位置: {i}, fid={fid}, fname={fname}")
+        if fid == FIELD_CODE or fname == "代码":
             code_pos = i
+            print(f"    [DEBUG] 代码字段位置: {i}, fid={fid}, fname={fname}")
 
     if name_pos is None or code_pos is None:
-        print("[ERROR] 底层表字段定位失败")
+        print(f"[ERROR] 底层表字段定位失败: name_pos={name_pos}, code_pos={code_pos}")
+        print(f"  field_ids={field_ids}")
+        print(f"  field_names={field_names}")
         sys.exit(1)
 
     result = {}
@@ -189,8 +201,12 @@ def read_bottom_table():
         code = rec[code_pos] if code_pos < len(rec) else None
         if isinstance(name, list):
             name = name[0] if name else None
+        if isinstance(code, list):
+            code = code[0] if code else None
         if name and code:
             result[str(name)] = str(code).strip()
+        else:
+            print(f"    [DEBUG] 跳过: name={name}, code={code}")
     return result
 
 
