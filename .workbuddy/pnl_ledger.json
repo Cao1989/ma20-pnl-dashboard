@@ -4,7 +4,7 @@
     "recvmjBoDx9bVY": {
       "name": "沪电股份",
       "total_pnl": 716.0,
-      "pos_amount": 12660,
+      "pos_amount": 12665,
       "position": "高增长"
     },
     "rec27rswlS6cu2": {
@@ -15,19 +15,19 @@
     },
     "recvkfAQ6oqmiU": {
       "name": "中证A500",
-      "total_pnl": 1975.80696,
+      "total_pnl": -104997.6749,
       "pos_amount": 104997.674866,
       "position": "佩奇"
     },
     "recvkfAYoFaZqc": {
       "name": "易方达全球",
-      "total_pnl": 7302.085912,
+      "total_pnl": -10323.79876,
       "pos_amount": 10323.79876,
       "position": "佩奇"
     },
     "rec27rswlS68Dc": {
       "name": "宝盈纳指100",
-      "total_pnl": 9881.115524,
+      "total_pnl": -51501.82093,
       "pos_amount": 51501.82093,
       "position": "乔治"
     },
@@ -45,7 +45,7 @@
     },
     "rec27rswlS6ge5": {
       "name": "中证红利低波",
-      "total_pnl": -1860.909791,
+      "total_pnl": -239998.7517,
       "pos_amount": 239998.751707,
       "position": "媳妇"
     },
@@ -69,25 +69,25 @@
     },
     "rec27rswlS653Y": {
       "name": "沪深300",
-      "total_pnl": 2286.047673,
+      "total_pnl": -298743.7245,
       "pos_amount": 298743.724476,
       "position": "战略仓"
     },
     "recvkfp1uHa5TP": {
       "name": "广发全球精选",
-      "total_pnl": 28724.11417,
+      "total_pnl": -96200.00419,
       "pos_amount": 96200.004186,
       "position": "战略仓"
     },
     "recvkfmpempQUE": {
       "name": "东方人工智能",
-      "total_pnl": 40724.41411,
+      "total_pnl": -86274.66907,
       "pos_amount": 86274.669068,
       "position": "战略仓"
     },
     "recvkfyuBndx38": {
       "name": "景颐丰利",
-      "total_pnl": 5974.606544,
+      "total_pnl": -363536.9736,
       "pos_amount": 363536.973556,
       "position": "战略仓"
     },
@@ -114,7 +114,13 @@
       "total_pnl": -2511.6,
       "pos_amount": 113601.6,
       "position": "战术"
+    },
+    "recvlfoVhspaFK": {
+      "name": "电网ETF",
+      "total_pnl": 0.0,
+      "pos_amount": 192780,
+      "position": "战术"
     }
   },
-  "last_updated": "2026-06-15"
+  "last_updated": "2026-06-16"
 }
